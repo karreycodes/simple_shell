@@ -1,3 +1,2 @@
-## Second Team project
-## Building a simple shell
-## Authors: 
+## Second Alx Team project: Building a simple shell
+## Authors:
