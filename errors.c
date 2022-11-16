@@ -1,107 +1,85 @@
 #include "shell.h"
 
-int create_error(char **args, int err);
-char *error_126(char **args);
-char *error_127(char **args);
-
 /**
- * error_126 - Creates an error message for permission denied failures.
- * @args: An array of arguments passed to the command.
- * Return: The error string.
+ *_eputs - prints an input string
+ * @str: the string to be printed
+ *
+ * Return: Nothing
  */
-
-char *error_126(char **args)
+void _eputs(char *str)
 {
-	char *error, *hist_str;
-	int len;
+	int i = 0;
 
-	hist_str = _itoa(hist);
-	if (!hist_str)
-		return (NULL);
-	len = _strlen(name) + _strlen(hist_str) + _strlen(args[0]) + 24;
-	error = malloc(sizeof(char) * (len + 1));
-	if (!error)
+	if (!str)
+		return;
+	while (str[i] != '\0')
 	{
-		free(hist_str);
-		return (NULL);
+		_eputchar(str[i]);
+		i++;
 	}
-	_strcpy(error, name);
-	_strcat(error, ": ");
-	_strcat(error, hist_str);
-	_strcat(error, ": ");
-	_strcat(error, args[0]);
-	_strcat(error, ": Permission denied\n");
-	free(hist_str);
-	return (error);
 }
 
 /**
- * error_127 - Creates an error message for command not found failures.
- * @args: An array of arguments passed to the command.
- * Return: The error string.
+ * _eputchar - writes the character c to stderr
+ * @c: The character to print
+ *
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
  */
-
-char *error_127(char **args)
+int _eputchar(char c)
 {
-	char *error, *hist_str;
-	int len;
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
 
-	hist_str = _itoa(hist);
-	if (!hist_str)
-		return (NULL);
-	len = _strlen(name) + _strlen(hist_str) + _strlen(args[0]) + 16;
-	error = malloc(sizeof(char) * (len + 1));
-	if (!error)
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
 	{
-		free(hist_str);
-		return (NULL);
+		write(2, buf, i);
+		i = 0;
 	}
-	_strcpy(error, name);
-	_strcat(error, ": ");
-	_strcat(error, hist_str);
-	_strcat(error, ": ");
-	_strcat(error, args[0]);
-	_strcat(error, ": not found\n");
-	free(hist_str);
-	return (error);
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
+	return (1);
 }
 
 /**
- * create_error - Writes a custom error message to stderr.
- * @args: An array of arguments.
- * @err: The error value.
- * Return: The error value.
+ * _putfd - writes the character c to given fd
+ * @c: The character to print
+ * @fd: The filedescriptor to write to
+ *
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
  */
-
-int create_error(char **args, int err)
+int _putfd(char c, int fd)
 {
-	char *error;
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
 
-	switch (err)
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
 	{
-		case -1:
-			error = error_env(args);
-			break;
-		case 1:
-			error = error_1(args);
-			break;
-		case 2:
-			if (*(args[0]) == 'e')
-				error = error_2_exit(++args);
-			else if (args[0][0] == ';' || args[0][0] == '&' || args[0][0] == '|')
-				error = error_2_syntax(args);
-			else
-				error = error_2_cd(args);
-			break;
-		case 126:
-			error = error_126(args);
-			break;
-		case 127:
-			error = error_127(args);
-			break;
+		write(fd, buf, i);
+		i = 0;
 	}
-	write(STDERR_FILENO, error, _strlen(error));
-	if (error)
-		free(error);
-	return (err);
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
+	return (1);
+}
+
+/**
+ *_putsfd - prints an input string
+ * @str: the string to be printed
+ * @fd: the filedescriptor to write to
+ *
+ * Return: the number of chars put
+ */
+int _putsfd(char *str, int fd)
+{
+	int i = 0;
+
+	if (!str)
+		return (0);
+	while (*str)
+	{
+		i += _putfd(*str++, fd);
+	}
+	return (i);
 }
