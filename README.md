@@ -1,3 +1,13 @@
-___shell test alt___
+## Second Alx Team project:0x16.C - Simple Shell
+### Writing a simple UNIX command interpreter
 
-```simple shell```
+## Resources
+Read or watch:
+```
+Unix shell
+Thompson shell
+Ken Thompson
+man or help (sh)
+
+```
+
